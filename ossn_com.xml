@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component xmlns="http://www.opensource-socialnetwork.org/v/3.0">
+    <name>Request Validation Document</name>
+    <id>OssnValDoc</id>
+    <description>Disable automatic account activation via user email - Ask new users to upload a validation document (Id or Diploma) - new accounts have to be activated manually on admin backend after Validation Document/diploma verification</description>
+    <author>Nizone</author>
+    <author_url>https://staff.ma/</author_url>
+    <license>GNU General Public License v2</license>
+    <license_url>https://www.gnu.de/documents/gpl-2.0.en.html</license_url>
+    <version>1.0</version>
+	<requires>
+		<type>ossn_version</type>
+		<version>7.1</version>
+	</requires>
+	<requires>
+		<type>ossn_component</type>
+		<name>AnonymousRegistration</name>
+		<comparator>disabled</comparator>
+	</requires>
+	<requires>
+		<type>ossn_component</type>
+		<name>userautovalidate</name>
+		<comparator>disabled</comparator>
+	</requires>
+	<requires>
+		<type>ossn_component</type>
+		<name>DisableUserActivationByMail</name>
+		<comparator>disabled</comparator>
+	</requires>
+</component>
