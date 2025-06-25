@@ -4,7 +4,7 @@
  * @link      https://www.opensource-socialnetwork.org/
  * @package   Disable Member Self Validating
  * @author    Michael Zülsdorff <ossn@z-mans.net>
- * @copyright staff.ma (R)	2025
+ * @copyright staff.ma -	2025
  * @license   GNU General Public License https://www.gnu.de/documents/gpl-2.0.en.html
  */
 define('__OSSN_VALDOC__', ossn_route()->com . 'OssnValDoc/');
