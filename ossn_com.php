@@ -10,10 +10,15 @@
 define('__OSSN_VALDOC__', ossn_route()->com . 'OssnValDoc/');
 
 require_once __OSSN_VALDOC__ . 'classes/OssnVD.php';
+require_once __OSSN_VALDOC__ . 'classes/Diploma.php';
 require_once __OSSN_VALDOC__ . 'plugins/default.php';
+
 
 function com_disable_member_self_validating()
 {
+	ossn_register_page('diploma', 'diploma_upload_page_handler');
+	ossn_register_action('diploma/add', __OSSN_VALDOC__ . 'actions/upload.php');
+
 	if (method_exists(new OssnSite, 'setSetting')) {
 		ossn_unregister_page('uservalidate');
 		ossn_register_page('uservalidate', 'com_disable_member_self_validating_uservalidate_pagehandler');
@@ -214,4 +219,87 @@ function get_vd_entity($guid) {
 	}
 	return false;
 }
+
+function diploma_upload_page_handler($pages) {
+
+    if (!isset($pages[1]) || !isset($pages[2])) {
+        ossn_error_page();
+    }
+    
+    $user_guid = (int) $pages[1];
+    $token = trim($pages[2]);
+    
+    // Validate user exists
+    $user = ossn_user_by_guid($user_guid);
+    if (!$user) {
+        ossn_error_page();
+    }
+    
+    // Verify token matches first 10 chars of activation hash
+    $activation_hash = $user->activation;
+    if (empty($activation_hash) || substr($activation_hash, 0, 10) !== $token) {
+        ossn_error_page();
+    }
+    
+	// Prepare page metadata
+	ossn_set_page_owner_guid($user->guid);
+	$title = ossn_print('diploma:upload:title');
+	
+	$content = diploma_handle_upload_logic($user);
+	$contents = array(
+		'content' => $content,
+	);
+	
+	$content = ossn_set_page_layout('contents', $contents);
+	echo ossn_view_page($title, $content);
+}
+
+function diploma_handle_upload_logic($user) {
+    // Case 1: Account already verified
+    if (empty($user->activation)) {
+		return ossn_view_page(ossn_print('diploma:upload:title'), ossn_plugin_view('output/ok', array('text' => ossn_print('diploma:alreadyverified'))));
+    }
+    
+    // Case 2: Check for existing diploma
+    $diploma = Diploma::getByUserGuid($user->guid);
+    if ($diploma) {
+		// If diploma exists, show message
+		ossn_trigger_message(ossn_print('diploma:waitingadmin'), 'success');
+		redirect(REF);
+		// Optionally, you can return a view here if needed
+		// return ossn_view_page(ossn_print('diploma:upload:title'), ossn_plugin_view('output/ok', array('text' => ossn_print('diploma:waitingadmin'))));
+    }
+    
+    // Case 3: Show upload form
+
+
+
+	$params = array(
+					'content' => ossn_view_form('add', array(
+												'action' => ossn_site_url() . 'action/diploma/add',
+												'component' => 'OssnValDoc',
+												'class' => 'ossn-ads-form',
+												'params' => array('user_guid' => $user->guid, 
+																  'token' => substr($user->activation, 0, 10)
+	 				 								)
+										), false));
+									
+		
+		return ossn_plugin_view('diploma/upload', array('form' => $params['content'], 'user_guid' => $user->guid, 'user_token' => substr($user->activation, 0, 10)));
+
+   // error_log('Diploma upload form view loaded');
+   // return ossn_plugin_view('diploma/upload', array('form' => $form));
+   // error_log('Diploma upload form view returned');
+   // return $form;
+   //
+	error_log($user->guid);
+   /* $form = ossn_view_form('add', array(
+    'action' => ossn_site_url() . 'action/diploma/add',
+    'component' => 'OssnValDoc',
+    'class' => 'ossn-ads-form',
+	'params' => array('user_guid' => $user->guid)
+), false);
+    return ossn_plugin_view('diploma/upload', array('form' => $form));*/ 
+}
+
 ossn_register_callback('ossn', 'init', 'com_disable_member_self_validating');
