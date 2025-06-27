@@ -16,6 +16,10 @@ require_once __OSSN_VALDOC__ . 'plugins/default.php';
 
 function com_disable_member_self_validating()
 {
+	//$link       = ossn_site_url("uservalidate/activate/{$this->guid}/{$this->activation}");
+	//$link       = ossn_call_hook('user', 'validation:email:url', $this, $link);
+	ossn_add_hook('user', 'validation:email:url', 'transformValidationUrl');
+
 	ossn_register_page('diploma', 'diploma_upload_page_handler');
 	ossn_register_action('diploma/add', __OSSN_VALDOC__ . 'actions/upload.php');
 
@@ -266,14 +270,9 @@ function diploma_handle_upload_logic($user) {
 		// If diploma exists, show message
 		ossn_trigger_message(ossn_print('diploma:waitingadmin'), 'success');
 		redirect(REF);
-		// Optionally, you can return a view here if needed
-		// return ossn_view_page(ossn_print('diploma:upload:title'), ossn_plugin_view('output/ok', array('text' => ossn_print('diploma:waitingadmin'))));
-    }
+	}
     
     // Case 3: Show upload form
-
-
-
 	$params = array(
 					'content' => ossn_view_form('add', array(
 												'action' => ossn_site_url() . 'action/diploma/add',
@@ -286,20 +285,27 @@ function diploma_handle_upload_logic($user) {
 									
 		
 		return ossn_plugin_view('diploma/upload', array('form' => $params['content'], 'user_guid' => $user->guid, 'user_token' => substr($user->activation, 0, 10)));
+}
 
-   // error_log('Diploma upload form view loaded');
-   // return ossn_plugin_view('diploma/upload', array('form' => $form));
-   // error_log('Diploma upload form view returned');
-   // return $form;
-   //
-	error_log($user->guid);
-   /* $form = ossn_view_form('add', array(
-    'action' => ossn_site_url() . 'action/diploma/add',
-    'component' => 'OssnValDoc',
-    'class' => 'ossn-ads-form',
-	'params' => array('user_guid' => $user->guid)
-), false);
-    return ossn_plugin_view('diploma/upload', array('form' => $form));*/ 
+function transformValidationUrl($hook, $type, $return, $params) {
+
+	// Replace 'uservalidate/activate' with 'diploma/upload'
+    $url = str_replace('uservalidate/activate', 'diploma/upload', $return);
+    
+    // Find the last slash and extract the hash part
+    $lastSlashPos = strrpos($url, '/');
+    if ($lastSlashPos !== false) {
+        $beforeHash = substr($url, 0, $lastSlashPos + 1);
+        $hash = substr($url, $lastSlashPos + 1);
+        
+        // Keep only first 10 characters of the hash
+        $shortHash = substr($hash, 0, 10);
+        
+        // Reconstruct the URL
+        $url = $beforeHash . $shortHash;
+    }
+    
+    return $url;
 }
 
 ossn_register_callback('ossn', 'init', 'com_disable_member_self_validating');
