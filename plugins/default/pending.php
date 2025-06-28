@@ -33,14 +33,47 @@ $count = get_unvalidated_users_with_documents($search, 'count');
 						$vds->type = 'user';
 						$vds->subtype = 'diploma:file';
 						$vds->owner_guid = $user->guid;
- 						echo '<div class="col">';
+						$vds = $vds->getDiplomaFile();
+						// Get the extension
+						$extension = $vds->getExtension();
+						$extension = strtolower($extension); // Normalize to lowercase
+						echo '<div class="col">';
 						echo '<div class="card" style="width: 18rem;">';
-error_log("diploma ext. is/ ". " value is: {$vds->{'0'}->value}");						
-						echo '<img class="card-img-top" src="';
- 						echo ossn_site_url("pending_validations/user/{$vds->owner_guid}"); 		
-						echo '" alt="Card image cap">';
-						echo '<div class="card-body">';
+						switch ($extension) {
+							case 'jpg':
+							case 'jpeg':
+								// Handle JPEG images
+								echo '<img class="card-img-top" src="';
+								echo ossn_site_url("pending_validations/user/{$vds->{0}->owner_guid}"); 		
+								echo '" alt="Card image cap">';
+								
+								break;
+								
+							case 'png':
+								// Handle PNG images
+								echo '<img class="card-img-top" src="';
+								echo ossn_site_url("pending_validations/user/{$vds->{0}->owner_guid}"); 		
+								echo '" alt="Card image cap">';
+								break;
+								
+							case 'pdf':
+								// Handle PDF files
+								echo '<a href="';
+								echo ossn_site_url("pending_validations/user/{$vds->{0}->owner_guid}"); 
+								echo '" target="_blank" style="text-decoration: none;">';
+								echo '<img src="https://img.icons8.com/?size=160&id=mcyAsTDJNTI9&format=png" ';
+								echo '	alt="Diploma/Certification PDF"style="border: 1px solid #ccc; border-radius: 4px;" /></a>';
+									
+								break;
+								
+							default:
+								error_log("Unsupported file extension: " . $extension);
+								// Handle unsupported file types
+								$this->handleUnsupportedFile($extension);
+								break;
+						}
 
+						echo '<div class="card-body">';
 						echo '<h5 class="card-title">'.$user->fullname.'</h5>';
 						echo '<table class="table ossn-users-list">';	
 						echo '<tr>';

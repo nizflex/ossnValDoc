@@ -138,4 +138,16 @@ error_log("getDiplomaFile:: Please check the parameters passed to getDiplomaFile
 				return $this->searchObject($args);
 		}
 
+       public function getExtension() {
+        // Get the first diploma object safely
+        $diplomaObject = $this->{0} ?? null;
+        
+        if ($diplomaObject && property_exists($diplomaObject, 'value')) {
+            $fileValue = $diplomaObject->value;            
+            // Get extension
+            return pathinfo($fileValue, PATHINFO_EXTENSION);
+        }
+        return '';
+        }
+
 }
