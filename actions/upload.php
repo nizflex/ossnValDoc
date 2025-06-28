@@ -88,6 +88,12 @@ $success = $diploma->addFile($file, $user_guid);
 if ($success) {
     ossn_trigger_message(ossn_print('diploma:success'), 'success');
     ossn_trigger_message(ossn_print('diploma:waitingadmin'), 'success');
+    //set user's last activity to :'1'
+    $user = ossn_user_by_guid($user_guid);
+    if ($user) {
+        $user->last_activity = '1';
+        $user->save();
+    }
     redirect('home');
 } else {
     ossn_trigger_message(ossn_print('diploma:upload:error'), 'error');

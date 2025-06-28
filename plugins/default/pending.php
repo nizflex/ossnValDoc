@@ -33,9 +33,11 @@ $count = get_unvalidated_users_with_documents($search, 'count');
 						$vds = $vds->getVds($user->guid);
  						echo '<div class="col">';
 						echo '<div class="card" style="width: 18rem;">';
+error_log("here - " .$user->guid. " - " . print_r($vds, true));
 						if ($vds) {
 							foreach ($vds as $vd) {	
 							echo '<img class="card-img-top" src="';
+error_log("here2 - " .$vd->getVDURL2());
 							echo $vd->getVDURL(); 
 							}
 						}

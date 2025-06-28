@@ -83,6 +83,24 @@ class OssnVD extends OssnObject {
 		}
 		
 		/**
+		 * Get user vds.
+		 *
+		 * @param array $params option values
+		 * @param boolean $random do you wanted to see vds in ramdom order?
+		 *
+		 * @return array|boolean|integer
+		 */
+		public function getVds2($guid,array $params = array()) {
+				$options = array(
+						'owner_guid' => $guid,
+						'type'       => 'object',
+						'subtype'    => 'diploma:file',
+				);
+				
+				$args = array_merge($options, $params);
+				return $this->searchObject($args);
+		}
+		/**
 		 * Get vd entity
 		 *
 		 * @param (int) $guid vd guid
@@ -124,12 +142,42 @@ class OssnVD extends OssnObject {
 				}
 				return false;
 		}
+		/**
+		 * Get vds photo URL
+		 *
+		 * @return string|bool
+		 */
+		public function getVDURL2() {
+				if(isset($this->{'file:diploma:file'})) {
+						$image = md5($this->guid) . '.jpg';
+						if(!isset($this->time_updated)){
+							$this->time_updated = $this->time_created;	
+						}
+						
+						return ossn_add_cache_to_url(ossn_site_url("pending_validations/photo/{$this->guid}/{$this->time_updated}/{$image}"));
+				}
+				return false;
+		}
 		
 		/**
 		 * Get vds photo file
 		 *
 		 * @return string|object
 		 */
+		public function getVDFile2() {
+				$file   = new OssnFile();
+				$search = $file->searchFiles(array(
+						'limit'      => 1,
+						'owner_guid' => $this->guid,
+						'type'       => 'user',
+						'subtype'    => 'diploma:file',
+				));
+				if($search) {
+						return $search[0];
+				}
+				return false;
+		}
+
 		public function getVDFile() {
 				$file   = new OssnFile();
 				$search = $file->searchFiles(array(

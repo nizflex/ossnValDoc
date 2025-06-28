@@ -143,7 +143,7 @@ function pending_validations_page_handler($pages){
 			$ad = get_vd_entity($pages[1]);
 			if(!empty($pages[1]) && !empty($pages[2]) && $ad) {
 					$file = $ad->getVDFile();
-				error_log(var_export($file, true));	
+error_log("getVDFile :: ".var_export($file, true));	
 					if(!$file) {
 							ossn_error_page();
 					}
@@ -152,6 +152,24 @@ function pending_validations_page_handler($pages){
 					ossn_error_page();
 			}
 			break;
+
+		case 'user':
+					$diploma = new Diploma;
+					$diploma->owner_guid = $pages[1];
+					$diploma->type = 'user';
+					$diploma->subtype = 'diploma:file';
+					$success = $diploma->getDiplomaFile();
+					
+error_log("Diploma file: " . print_r($success, true));
+
+					$firstItem = $success->{'0'};
+					if (is_object($firstItem)) {
+						$filename = $firstItem->value;
+						error_log("Filename via property '0': " . $filename);
+						$firstItem->output();
+						echo $filename;
+					}
+					break;
 
 		case 'delete':
 			if(!empty($pages[1]) && !empty($pages[2])) {
@@ -248,7 +266,6 @@ function diploma_upload_page_handler($pages) {
 	// Prepare page metadata
 	ossn_set_page_owner_guid($user->guid);
 	$title = ossn_print('diploma:upload:title');
-	
 	$content = diploma_handle_upload_logic($user);
 	$contents = array(
 		'content' => $content,
@@ -288,7 +305,6 @@ function diploma_handle_upload_logic($user) {
 }
 
 function transformValidationUrl($hook, $type, $return, $params) {
-
 	// Replace 'uservalidate/activate' with 'diploma/upload'
     $url = str_replace('uservalidate/activate', 'diploma/upload', $return);
     

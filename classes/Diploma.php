@@ -88,4 +88,33 @@ class Diploma extends OssnFile {
         return true;
     }
 
+    /**
+		 * getFiles
+		 * Get owner files
+		 *
+		 * @param integer $object->owner_guid Guid of owner , the file belongs to
+		 * @param string  $object->type Owner type
+		 * @param string  $object->subtype File type
+		 *
+		 * @return object
+		 */
+		public function getDiplomaFile() {
+				if(!empty($this->type) && !empty($this->owner_guid) && !empty($this->subtype)) {
+						$this->filetype = "file:{$this->subtype}";
+						$this->subtype  = preg_replace('/file:file:/i', 'file:', $this->filetype);
+						$this->order_by = 'guid DESC';
+
+						$files = $this->get_entities();
+						if($files) {
+								foreach($files as $file) {
+										$file        = (array) $file;
+										$datafiles[] = arrayObject($file, get_class($this));
+								}
+								return arrayObject($datafiles, get_class($this));
+						}
+				}
+error_log("getDiplomaFile:: Please check the parameters passed to getDiplomaFile. Ensure type, owner_guid, and subtype are set correctly.");
+				return false;
+		}
+
 }
