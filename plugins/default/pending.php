@@ -29,18 +29,15 @@ $count = get_unvalidated_users_with_documents($search, 'count');
  				
  				if($list) {
 					foreach($list as $user) {
-						$vds = new OssnVd;
-						$vds = $vds->getVds($user->guid);
+						$vds = new Diploma;
+						$vds->type = 'user';
+						$vds->subtype = 'diploma:file';
+						$vds->owner_guid = $user->guid;
  						echo '<div class="col">';
 						echo '<div class="card" style="width: 18rem;">';
-error_log("here - " .$user->guid. " - " . print_r($vds, true));
-						if ($vds) {
-							foreach ($vds as $vd) {	
-							echo '<img class="card-img-top" src="';
-error_log("here2 - " .$vd->getVDURL2());
-							echo $vd->getVDURL(); 
-							}
-						}
+error_log("diploma ext. is/ ". " value is: {$vds->{'0'}->value}");						
+						echo '<img class="card-img-top" src="';
+ 						echo ossn_site_url("pending_validations/user/{$vds->owner_guid}"); 		
 						echo '" alt="Card image cap">';
 						echo '<div class="card-body">';
 
@@ -61,7 +58,8 @@ error_log("here2 - " .$vd->getVDURL2());
 						echo '</a></td>';
 
 						echo '<td><a class="badge bg-danger text-white" href="';
-						echo ossn_site_url("pending_validations/delete/{$user->guid}/{$vds[0]->guid}/user", true); 
+						//echo ossn_site_url("pending_validations/delete/{$user->guid}/{$vds[0]->guid}/user", true); 
+						echo ossn_site_url("action/admin/delete/user?guid={$user->guid}", true);
 						echo '"><i class="fa-solid fa-trash-can"></i>';
 						echo ossn_print('delete');
 						echo '</a></td></tr></table></div></div></div>';
@@ -88,7 +86,8 @@ error_log("here2 - " .$vd->getVDURL2());
      
 	  <div class="mt-3 d-flex justify-content-center">
 		  <button type="button" class="btn btn-success me-2" data-bs-dismiss="modal" onclick='window.location.href="<?php echo ossn_site_url("action/admin/validate/user?guid={$user->guid}", true); ?>"'>Validate</button>
-		  <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick='window.location.href="<?php echo ossn_site_url("pending_validations/delete/{$user->guid}/{$vds[0]->guid}/user", true); ?>"'>Delete</button>
+		  <!--button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick='window.location.href="<?php //echo ossn_site_url("pending_validations/delete/{$user->guid}/{$vds[0]->guid}/user", true); ?>"'>Delete</button-->
+		  <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick='window.location.href="<?php echo ossn_site_url("action/admin/delete/user?guid={$user->guid}", true); ?>"'>Delete</button>
         </div>
 	 </div>
     </div>

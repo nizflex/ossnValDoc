@@ -99,7 +99,9 @@ class Diploma extends OssnFile {
 		 * @return object
 		 */
 		public function getDiplomaFile() {
+
 				if(!empty($this->type) && !empty($this->owner_guid) && !empty($this->subtype)) {
+ error_log("getDiplomaFile:: type: {$this->type}, owner_guid: {$this->owner_guid}, subtype: {$this->subtype}");                   
 						$this->filetype = "file:{$this->subtype}";
 						$this->subtype  = preg_replace('/file:file:/i', 'file:', $this->filetype);
 						$this->order_by = 'guid DESC';
@@ -115,6 +117,25 @@ class Diploma extends OssnFile {
 				}
 error_log("getDiplomaFile:: Please check the parameters passed to getDiplomaFile. Ensure type, owner_guid, and subtype are set correctly.");
 				return false;
+		}
+
+        /**
+		 * Get user vds.
+		 *
+		 * @param array $params option values
+		 * @param boolean $random do you wanted to see vds in ramdom order?
+		 *
+		 * @return array|boolean|integer
+		 */
+		public function getVds2($guid,array $params = array()) {
+				$options = array(
+						'owner_guid' => $guid,
+						'type'       => 'user',
+						'subtype'    => 'diploma:file',
+				);
+				
+				$args = array_merge($options, $params);
+				return $this->searchObject($args);
 		}
 
 }
